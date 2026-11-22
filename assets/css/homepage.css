@@ -1,0 +1,113 @@
+:root {
+    --color-primary: #b98be8;
+    --color-primary-hover: #d3b3f2;
+    --color-primary-light: #eadcf7;
+    --color-background: #100b16;
+    --color-surface: #191220;
+    --color-border: #33243f;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body.home-page {
+    min-height: 100vh;
+    margin: 0;
+    background: var(--color-background);
+    color: #f7f2fb;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.site-header {
+    min-height: 72px;
+    padding: 0 max(24px, calc((100% - 1080px) / 2));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.brand {
+    color: var(--color-primary);
+    font-size: 19px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.logout-link {
+    padding: 9px 15px;
+    border: 1px solid #574365;
+    border-radius: 7px;
+    color: var(--color-primary);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.logout-link:hover {
+    border-color: #80649a;
+    background: #271b31;
+    color: var(--color-primary-hover);
+}
+
+.home-content {
+    width: min(100% - 40px, 1080px);
+    margin: 64px auto;
+}
+
+.welcome-card {
+    padding: clamp(32px, 7vw, 72px);
+    overflow: hidden;
+    border: 1px solid #55376d;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #21142c, #321b45 60%, #43265b);
+    color: #fff;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.eyebrow {
+    margin: 0 0 16px;
+    color: #d3b3f2;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+}
+
+.welcome-card h1 {
+    margin: 0;
+    font-size: clamp(32px, 6vw, 52px);
+    letter-spacing: -0.04em;
+}
+
+.welcome-message {
+    max-width: 560px;
+    margin: 18px 0 26px;
+    color: #ded3e8;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 9px 13px;
+    border: 1px solid rgba(234, 220, 247, 0.32);
+    border-radius: 999px;
+    background: rgba(234, 220, 247, 0.1);
+    color: var(--color-primary-light);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .site-header {
+        min-height: 64px;
+        padding: 0 20px;
+    }
+
+    .home-content {
+        margin: 32px auto;
+    }
+}

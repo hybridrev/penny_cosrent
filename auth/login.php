@@ -4,39 +4,51 @@ require_once "../config/database.php";
 $savedEmail = $_COOKIE["remember_email"] ?? "";
 ?>
 
-<h2>Login</h2>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../assets/css/auth.css">
+</head>
 
-<?php
-if (isset($_GET["registered"])) {
-    echo "<p>Akun berhasil dibuat! Silakan login.</p>";
-}
-?>
+<body class="auth-page" onload="document.querySelector('input[name=email]').focus()">
+    <main class="auth-card">
+        <h1>Selamat datang</h1>
+        <p class="auth-description">Masuk ke akun Costume Rental Anda.</p>
 
-<form action="../process/login_process.php" method="POST">
+        <?php if (isset($_GET["registered"])): ?>
+            <p class="auth-notice">Akun berhasil dibuat! Silakan login.</p>
+        <?php endif; ?>
 
-    <label>Email</label><br>
-    <input
-        type="email"
-        name="email"
-        value="<?= htmlspecialchars($savedEmail) ?>"
-        required
-    >
-    <br><br>
+        <form action="../process/login_process.php" method="POST">
+            <div class="form-field">
+                <label for="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="<?= htmlspecialchars($savedEmail) ?>"
+                    autocomplete="email"
+                    required
+                >
+            </div>
 
-    <label>Password</label><br>
-    <input type="password" name="password" required>
-    <br><br>
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" autocomplete="current-password" required>
+            </div>
 
-    <label>
-        <input type="checkbox" name="remember_email" value="1">
-        Ingat email saya
-    </label>
-    <br><br>
+            <label class="form-option" for="remember_email">
+                <input id="remember_email" type="checkbox" name="remember_email" value="1">
+                Ingat email saya
+            </label>
 
-    <button type="submit">Login</button>
+            <button type="submit">Login</button>
+        </form>
 
-</form>
-
-<p>Belum punya akun?
-<a href="signup.php">Signup</a>
-</p>
+        <p class="auth-footer">Belum punya akun? <a href="signup.php">Daftar</a></p>
+    </main>
+</body>
+</html>

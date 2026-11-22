@@ -2,26 +2,40 @@
 require_once "../config/database.php";
 ?>
 
-<h2>Signup</h2>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun</title>
+    <link rel="stylesheet" href="../assets/css/auth.css">
+</head>
 
-<form action="../process/signup_process.php" method="POST">
+<body class="auth-page" onload="document.querySelector('input[name=username]').focus()">
+    <main class="auth-card">
+        <h1>Buat akun</h1>
+        <p class="auth-description">Daftar untuk mulai menyewa kostum.</p>
 
-    <label>Username</label><br>
-    <input type="text" name="username" required>
-    <br><br>
+        <form action="../process/signup_process.php" method="POST">
+            <div class="form-field">
+                <label for="username">Username</label>
+                <input id="username" type="text" name="username" autocomplete="username" required>
+            </div>
 
-    <label>Email</label><br>
-    <input type="email" name="email" required>
-    <br><br>
+            <div class="form-field">
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" autocomplete="email" required>
+            </div>
 
-    <label>Password</label><br>
-    <input type="password" name="password" required>
-    <br><br>
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input id="password" type="password" name="password" autocomplete="new-password" required>
+            </div>
 
-    <button type="submit">Daftar</button>
+            <button type="submit">Daftar</button>
+        </form>
 
-</form>
-
-<p>Sudah punya akun? 
-<a href="login.php">Login</a>
-</p>
+        <p class="auth-footer">Sudah punya akun? <a href="login.php">Login</a></p>
+    </main>
+</body>
+</html>
