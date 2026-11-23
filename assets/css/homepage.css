@@ -147,6 +147,77 @@ body.home-page {
     font-weight: 600;
 }
 
+.costume-section {
+    margin-top: 56px;
+}
+
+.catalog-heading {
+    margin-bottom: 24px;
+}
+
+.catalog-heading .eyebrow {
+    margin-bottom: 8px;
+}
+
+.catalog-heading h2 {
+    margin: 0;
+    color: #f7f2fb;
+    font-size: clamp(24px, 4vw, 32px);
+}
+
+.catalog-description {
+    margin: 10px 0 0;
+    color: #c1b4cc;
+    line-height: 1.6;
+}
+
+.costume-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    gap: 20px;
+}
+
+.costume-card {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    transition: transform 160ms ease, border-color 160ms ease;
+}
+
+.costume-card:hover {
+    transform: translateY(-3px);
+    border-color: #72518a;
+}
+
+.costume-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #211829;
+}
+
+.costume-card-content {
+    padding: 15px 16px 17px;
+}
+
+.costume-card h3 {
+    margin: 0;
+    color: #f7f2fb;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.empty-catalog {
+    padding: 24px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: #c1b4cc;
+    text-align: center;
+}
+
 @media (max-width: 600px) {
     .site-header {
         min-height: 64px;
@@ -155,5 +226,9 @@ body.home-page {
 
     .home-content {
         margin: 32px auto;
+    }
+
+    .costume-section {
+        margin-top: 40px;
     }
 }
