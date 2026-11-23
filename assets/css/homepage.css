@@ -110,7 +110,7 @@ body.home-page {
     margin: 0 0 12px;
     font-family: Amorlate;
     font-weight: 400;
-    font-size: clamp(32px, 6vw, 52px);
+    font-size: 50px;
     letter-spacing: -0.04em;
 }
 
@@ -124,7 +124,6 @@ body.home-page {
 
 .welcome-card h1 {
     margin: 0;
-    font-size: clamp(32px, 6vw, 52px);
     letter-spacing: -0.04em;
 }
 
@@ -145,6 +144,23 @@ body.home-page {
     color: var(--color-primary-light);
     font-size: 13px;
     font-weight: 600;
+}
+
+.login-button {
+    display: inline-block;
+    padding: 12px 22px;
+    border: 1px solid #8e5db2;
+    border-radius: 8px;
+    background: #552879;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 150ms ease, transform 150ms ease;
+}
+
+.login-button:hover {
+    background: #673390;
+    transform: translateY(-1px);
 }
 
 .costume-section {

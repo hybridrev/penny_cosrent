@@ -1,6 +1,8 @@
 <?php
 
-require_once "includes/auth.php";
+session_start();
+
+$isLoggedIn = isset($_SESSION["user_id"], $_SESSION["username"]);
 
 $costumeFolders = glob(
     __DIR__ . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images"
@@ -44,17 +46,30 @@ foreach ($costumeFolders as $folder) {
             <img class="brand-logo" src="assets/images/logo.png" alt="Logo Penny Cosrent">
             <!-- <span>Penny Cosrent</span> -->
         </a>
-        <a class="logout-link" href="auth/logout.php">Logout</a>
+        <?php if ($isLoggedIn): ?>
+            <a class="logout-link" href="auth/logout.php">Logout</a>
+        <?php else: ?>
+            <a class="logout-link" href="auth/login.php">Login</a>
+        <?php endif; ?>
     </header>
 
     <main class="home-content">
         <section class="welcome-card">
-            <p class="eyebrow">BERANDA</p>
-            <h1 class="welcome-title">Halo, <?= htmlspecialchars($_SESSION["username"]) ?>!</h1>
-            <p class="welcome-message">
-                Selamat datang di Penny Cosrent <?= htmlspecialchars($_SESSION["username"]) ?>.
-            </p>
-            <span class="status-badge">Homepage</span>
+            <?php if ($isLoggedIn): ?>
+                <p class="eyebrow">BERANDA</p>
+                <h1 class="welcome-title">Halow, <?= htmlspecialchars($_SESSION["username"]) ?>!</h1>
+                <p class="welcome-message">
+                    Selamat datang di Penny Cosrent, <?= htmlspecialchars($_SESSION["username"]) ?>.
+                </p>
+                <span class="status-badge">Homepage</span>
+            <?php else: ?>
+                <p class="eyebrow">BERANDA</p>
+                <h1 class="welcome-title">Selamat Datang</h1>
+                <p class="welcome-message">
+                    Login untuk melanjutkan layanan Penny Cosrent.
+                </p>
+                <a class="login-button" href="auth/login.php">Login</a>
+            <?php endif; ?>
         </section>
 
         <section class="costume-section" aria-labelledby="costume-heading">

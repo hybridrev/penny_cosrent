@@ -27,8 +27,8 @@ if (ini_get("session.use_cookies")) {
 
 session_destroy();
 
-// Kembali ke login
-header("Location: login.php");
+// Kembali ke beranda publik
+header("Location: ../index.php");
 exit;
 
 ?>
