@@ -16,7 +16,7 @@ $savedEmail = $_COOKIE["remember_email"] ?? "";
 <body class="auth-page" onload="document.querySelector('input[name=email]').focus()">
     <main class="auth-card">
         <h1>Selamat datang</h1>
-        <p class="auth-description">Masuk ke akun Costume Rental Anda.</p>
+        <p class="auth-description">Masuk ke akun Anda.</p>
 
         <?php if (isset($_GET["registered"])): ?>
             <p class="auth-notice">Akun berhasil dibuat! Silakan login.</p>

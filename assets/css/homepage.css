@@ -7,6 +7,34 @@
     --color-border: #33243f;
 }
 
+@font-face {
+    font-family: "Honey";
+    src: url("assets/fonts/Honey Salt.otf") format("opentype");
+}
+
+@font-face {
+    font-family: "Amor";
+    src: url("assets/fonts/Amorlate.otf") format("opentype");
+    src: url("assets/fonts/Amorlate.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Darling";
+    src: url("assets/fonts/Darling Coffee.otf") format("opentype");
+    src: url("assets/fonts/Darling Coffee.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Cherry";
+    src: url("assets/fonts/Dacherry.otf") format("opentype");
+    src: url("assets/fonts/Dacherry.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Digital";
+    src: url("assets/fonts/digital-7.ttf") format("truetype");
+}
+
 * {
     box-sizing: border-box;
 }
@@ -30,10 +58,20 @@ body.home-page {
 }
 
 .brand {
-    color: var(--color-primary);
-    font-size: 19px;
-    font-weight: 700;
+    display: inline-flex;
+    font-family: Dacherry;
+    align-items: center;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 400;
     text-decoration: none;
+}
+
+.brand-logo {
+    width: 50px;
+    height: 50px;
+    weight: 600;
+    object-fit: contain;
 }
 
 .logout-link {
@@ -66,6 +104,14 @@ body.home-page {
     background: linear-gradient(135deg, #21142c, #321b45 60%, #43265b);
     color: #fff;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.welcome-title {
+    margin: 0 0 12px;
+    font-family: Amorlate;
+    font-weight: 400;
+    font-size: clamp(32px, 6vw, 52px);
+    letter-spacing: -0.04em;
 }
 
 .eyebrow {
