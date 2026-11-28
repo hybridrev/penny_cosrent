@@ -118,6 +118,21 @@ foreach ($costumeFolders as $folder) {
             <?php endif; ?>
         </section>
     </main>
+
+    <footer class="site-footer" style="padding: 30px;">
+        <h2>Penny Cosrent</h2>
+        <p class="footer-contact" style="padding-top: 10px">
+            Contact :
+            <a href="mailto:herlambang@abenmy.id">herlambang@abenmy.id</a>
+        </p>
+        <p class="footer-credit" style="padding-top: 10px">&copy; <?= date("Y") ?> Penny Cosrent &mdash; Made with love</p>
+        <a
+            class="footer-feedback-button"
+            href="feedback.php"
+        >
+            Kritik &amp; Saran
+        </a>
+    </footer>
     </div>
 </body>
 </html>

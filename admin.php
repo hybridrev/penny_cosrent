@@ -17,7 +17,7 @@ $escape = static function ($value): string {
 };
 
 $tabInput = $_GET["tab"] ?? "report";
-$activeTab = is_string($tabInput) && in_array($tabInput, ["report", "costumes"], true)
+$activeTab = is_string($tabInput) && in_array($tabInput, ["report", "costumes", "users", "feedback"], true)
     ? $tabInput
     : "report";
 $searchInput = $_GET["q"] ?? "";
@@ -25,6 +25,7 @@ $search = is_string($searchInput) ? trim($searchInput) : "";
 $searchPattern = "%" . $search . "%";
 $loadError = false;
 $costumeLoadError = false;
+$userLoadError = false;
 $editError = false;
 $summary = [
     "total_rentals" => 0,
@@ -37,12 +38,20 @@ $editRental = null;
 $editItems = [];
 $costumes = [];
 $editCostume = null;
+$users = [];
+$editUser = null;
+$feedbackLoadError = false;
+$feedbacks = [];
 
 $noticeMessages = [
     "updated" => "Transaksi berhasil diperbarui.",
     "deleted" => "Transaksi beserta detail dan pembayarannya berhasil dihapus.",
     "costume_created" => "Kostum berhasil ditambahkan.",
     "costume_updated" => "Detail kostum berhasil diperbarui.",
+    "costume_deleted" => "Varian kostum berhasil dihapus.",
+    "user_updated" => "Data akun berhasil diperbarui.",
+    "user_deleted" => "Akun berhasil dihapus. Riwayat rental dipertahankan dan profil customer terkait ikut dihapus.",
+    "feedback_deleted" => "Kritik atau saran berhasil dihapus.",
 ];
 $errorMessages = [
     "invalid" => "Data perubahan tidak valid. Periksa kembali isian Anda.",
@@ -50,10 +59,15 @@ $errorMessages = [
     "costume_not_found" => "Kostum tidak ditemukan.",
     "stock" => "Stok kostum tidak mencukupi untuk perubahan jumlah tersebut.",
     "duplicate" => "Nama kostum dan ukuran tersebut sudah terdaftar.",
+    "costume_in_use" => "Kostum ini digunakan pada transaksi rental, jadi tidak dapat dihapus.",
     "image_required" => "Unggah gambar JPG untuk kostum baru yang belum memiliki preview.",
     "image_invalid" => "Gambar harus berupa JPG/JPEG yang valid dan berukuran maksimal 5 MB.",
     "image_exists" => "Preview gambar untuk nama kostum ini sudah ada; file tidak ditimpa.",
+    "email_exists" => "Email tersebut sudah digunakan akun lain.",
+    "user_not_found" => "Akun tidak ditemukan.",
     "failed" => "Operasi gagal diproses. Silakan coba kembali.",
+    "feedback_not_found" => "Kritik atau saran tidak ditemukan.",
+    "not_found" => "Kritik atau saran tidak ditemukan.",
 ];
 $noticeKey = $_GET["notice"] ?? "";
 $errorKey = $_GET["error"] ?? "";
@@ -71,6 +85,14 @@ $editCostumeId = is_string($editCostumeInput)
     ? filter_var($editCostumeInput, FILTER_VALIDATE_INT)
     : false;
 if ($editCostumeInput !== "" && ($editCostumeId === false || $editCostumeId < 1)) {
+    $editError = true;
+}
+
+$editUserInput = $activeTab === "users" ? ($_GET["edit_user"] ?? "") : "";
+$editUserId = is_string($editUserInput)
+    ? filter_var($editUserInput, FILTER_VALIDATE_INT)
+    : false;
+if ($editUserInput !== "" && ($editUserId === false || $editUserId < 1)) {
     $editError = true;
 }
 
@@ -225,7 +247,7 @@ try {
     error_log("Admin rental report failed: " . $e->getMessage());
     $loadError = true;
 }
-} else {
+} elseif ($activeTab === "costumes") {
     try {
         $costumesStmt = $conn->query(
             "SELECT costume_id, costume_name, category, description, size, price_per_day, stock
@@ -250,6 +272,62 @@ try {
         error_log("Admin costume report failed: " . $e->getMessage());
         $costumeLoadError = true;
     }
+} elseif ($activeTab === "users") {
+    try {
+        $usersStmt = $conn->query(
+            "SELECT user_id, username, email, created_at
+             FROM users
+             ORDER BY created_at DESC, user_id DESC"
+        );
+        $users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($editUserInput !== "" && !$editError) {
+            $editUserStmt = $conn->prepare(
+                "SELECT user_id, username, email, created_at
+                 FROM users
+                 WHERE user_id = :user_id"
+            );
+            $editUserStmt->execute([":user_id" => $editUserId]);
+            $editUser = $editUserStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$editUser) {
+                $editError = true;
+            }
+        }
+    } catch (PDOException $e) {
+        error_log("Admin user report failed: " . $e->getMessage());
+        $userLoadError = true;
+    }
+} else {
+    try {
+        $conn->exec(
+            "CREATE TABLE IF NOT EXISTS feedbacks (
+                feedback_id int(11) NOT NULL AUTO_INCREMENT,
+                user_id int(11) DEFAULT NULL,
+                name varchar(100) DEFAULT NULL,
+                email varchar(100) DEFAULT NULL,
+                message text NOT NULL,
+                created_at timestamp NOT NULL DEFAULT current_timestamp(),
+                PRIMARY KEY (feedback_id),
+                KEY user_id (user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci"
+        );
+        $feedbacksStmt = $conn->query(
+            "SELECT
+                f.feedback_id,
+                f.user_id,
+                COALESCE(NULLIF(f.name, ''), NULLIF(u.username, ''), 'Anonim') AS name,
+                COALESCE(NULLIF(f.email, ''), NULLIF(u.email, ''), '—') AS email,
+                f.message,
+                f.created_at
+             FROM feedbacks f
+             LEFT JOIN users u ON u.user_id = f.user_id
+             ORDER BY f.created_at DESC, f.feedback_id DESC"
+        );
+        $feedbacks = $feedbacksStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Admin feedback report failed: " . $e->getMessage());
+        $feedbackLoadError = true;
+    }
 }
 ?>
 
@@ -258,7 +336,11 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $activeTab === "costumes" ? "Kelola Kostum" : "Laporan Rental" ?> | Penny Cosrent</title>
+    <title><?= $activeTab === "costumes"
+        ? "Kelola Kostum"
+        : ($activeTab === "users"
+            ? "Kelola Akun"
+            : ($activeTab === "feedback" ? "Kritik dan Saran" : "Laporan Rental")) ?> | Penny Cosrent</title>
     <link rel="stylesheet" href="assets/css/homepage.css">
     <link rel="stylesheet" href="assets/css/admin.css">
 </head>
@@ -274,23 +356,29 @@ try {
 
     <main class="admin-content">
         <section class="admin-heading">
-            <p class="eyebrow">PROTOTYPE ADMIN · JARINGAN LOKAL</p>
-            <h1><?= $activeTab === "costumes" ? "Kelola Kostum" : "Laporan Data Rental" ?></h1>
+            <p class="eyebrow">ADMIN · PENNY COSRENT</p>
+            <h1><?= $activeTab === "costumes"
+                ? "Kelola Kostum"
+                : ($activeTab === "users"
+                    ? "Kelola Akun"
+                    : ($activeTab === "feedback" ? "Kritik dan Saran" : "Laporan Data Rental")) ?></h1>
             <p>
                 <?= $activeTab === "costumes"
                     ? "Tambah kostum baru atau perbarui detail dan stok katalog."
-                    : "Data transaksi, customer, dan pembayaran." ?>
+                    : ($activeTab === "users"
+                        ? "Lihat akun yang terdaftar dan perbarui username, email, atau password."
+                        : ($activeTab === "feedback"
+                            ? "Masukan dari pengunjung untuk pengembangan Penny Cosrent."
+                            : "Data transaksi, customer, dan pembayaran.")) ?>
             </p>
         </section>
 
         <nav class="admin-tabs" aria-label="Menu admin">
             <a class="<?= $activeTab === "report" ? "is-active" : "" ?>" href="admin.php?tab=report">Report Rental</a>
             <a class="<?= $activeTab === "costumes" ? "is-active" : "" ?>" href="admin.php?tab=costumes">Kelola Kostum</a>
+            <a class="<?= $activeTab === "users" ? "is-active" : "" ?>" href="admin.php?tab=users">Kelola Akun</a>
+            <a class="<?= $activeTab === "feedback" ? "is-active" : "" ?>" href="admin.php?tab=feedback">Kritik dan Saran</a>
         </nav>
-
-        <p class="admin-prototype-warning">
-            CRUD tanpa password dapat diakses melalui localhost atau jaringan lokal privat. Jangan ekspos server ini ke internet.
-        </p>
 
         <?php if ($noticeMessage !== ""): ?>
             <p class="admin-notice"><?= $escape($noticeMessage) ?></p>
@@ -300,7 +388,9 @@ try {
                 <?= $escape(
                     $errorMessage !== ""
                         ? $errorMessage
-                        : ($activeTab === "costumes" ? "Kostum tidak ditemukan." : "Transaksi rental tidak ditemukan.")
+                        : ($activeTab === "costumes"
+                            ? "Kostum tidak ditemukan."
+                            : ($activeTab === "users" ? "Akun tidak ditemukan." : "Transaksi rental tidak ditemukan."))
                 ) ?>
             </p>
         <?php endif; ?>
@@ -551,7 +641,7 @@ try {
                 <?php endif; ?>
             </section>
         <?php endif; ?>
-        <?php else: ?>
+        <?php elseif ($activeTab === "costumes"): ?>
             <?php if ($costumeLoadError): ?>
                 <p class="admin-error">Data kostum tidak dapat dimuat dari database.</p>
             <?php else: ?>
@@ -711,10 +801,22 @@ try {
                                             <td>Rp <?= number_format((float) $costume["price_per_day"], 0, ",", ".") ?></td>
                                             <td><?= (int) $costume["stock"] ?></td>
                                             <td>
-                                                <a
-                                                    class="admin-edit-link"
-                                                    href="admin.php?tab=costumes&amp;edit_costume=<?= (int) $costume["costume_id"] ?>#costume-form"
-                                                >Edit</a>
+                                                <div class="report-actions">
+                                                    <a
+                                                        class="admin-edit-link"
+                                                        href="admin.php?tab=costumes&amp;edit_costume=<?= (int) $costume["costume_id"] ?>#costume-form"
+                                                    >Edit</a>
+                                                    <form
+                                                        action="process/admin_costume_process.php"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Hapus varian kostum #<?= (int) $costume["costume_id"] ?>? Jika dipakai dalam transaksi rental, penghapusan akan ditolak.');"
+                                                    >
+                                                        <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION["admin_csrf_token"]) ?>">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <input type="hidden" name="costume_id" value="<?= (int) $costume["costume_id"] ?>">
+                                                        <button class="admin-delete-button" type="submit">Hapus</button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -723,6 +825,176 @@ try {
                         </div>
                     <?php else: ?>
                         <p class="report-empty">Belum ada data kostum.</p>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+        <?php elseif ($activeTab === "users"): ?>
+            <?php if ($userLoadError): ?>
+                <p class="admin-error">Data akun tidak dapat dimuat dari database.</p>
+            <?php else: ?>
+                <?php if ($editUser): ?>
+                    <section class="report-table-section costume-form-section" id="user-form">
+                        <div class="report-title">
+                            <h2>Edit Akun #<?= (int) $editUser["user_id"] ?></h2>
+                            <a class="admin-cancel-link" href="admin.php?tab=users">Batal</a>
+                        </div>
+
+                        <form class="rental-edit-form" action="process/admin_user_process.php" method="POST">
+                            <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION["admin_csrf_token"]) ?>">
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="user_id" value="<?= (int) $editUser["user_id"] ?>">
+
+                            <div class="edit-form-grid">
+                                <div class="edit-form-field">
+                                    <label for="username">Username</label>
+                                    <input
+                                        id="username"
+                                        type="text"
+                                        name="username"
+                                        maxlength="50"
+                                        value="<?= $escape($editUser["username"]) ?>"
+                                        required
+                                    >
+                                </div>
+                                <div class="edit-form-field">
+                                    <label for="email">Email</label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        maxlength="100"
+                                        value="<?= $escape($editUser["email"]) ?>"
+                                        required
+                                    >
+                                </div>
+                                <div class="edit-form-field">
+                                    <label for="new_password">Password baru (opsional)</label>
+                                    <input
+                                        id="new_password"
+                                        type="password"
+                                        name="new_password"
+                                        minlength="8"
+                                        autocomplete="new-password"
+                                    >
+                                </div>
+                                <div class="edit-form-field">
+                                    <label for="confirm_password">Konfirmasi password baru</label>
+                                    <input
+                                        id="confirm_password"
+                                        type="password"
+                                        name="confirm_password"
+                                        minlength="8"
+                                        autocomplete="new-password"
+                                    >
+                                </div>
+                            </div>
+                            <p class="costume-form-help">Kosongkan kedua kolom password jika tidak ingin mengubahnya. Password baru minimal 8 karakter.</p>
+                            <button class="admin-action-button" type="submit">Simpan Perubahan</button>
+                        </form>
+                    </section>
+                <?php endif; ?>
+
+                <section class="report-table-section" aria-labelledby="users-heading">
+                    <div class="report-title">
+                        <h2 id="users-heading">Akun Terdaftar</h2>
+                        <span><?= count($users) ?> akun</span>
+                    </div>
+                    <?php if ($users): ?>
+                        <div class="report-table-wrap">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Tanggal terdaftar</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($users as $user): ?>
+                                        <tr>
+                                            <td><?= (int) $user["user_id"] ?></td>
+                                            <td><?= $escape($user["username"]) ?></td>
+                                            <td><?= $escape($user["email"]) ?></td>
+                                            <td><?= $escape($user["created_at"]) ?></td>
+                                            <td>
+                                                <div class="report-actions">
+                                                    <a
+                                                        class="admin-edit-link"
+                                                        href="admin.php?tab=users&amp;edit_user=<?= (int) $user["user_id"] ?>#user-form"
+                                                    >Edit</a>
+                                                    <form
+                                                        action="process/admin_user_process.php"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Hapus akun ini? Riwayat rental akan dipertahankan tanpa tautan ke akun dan profil customer terkait akan dihapus.');"
+                                                    >
+                                                        <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION["admin_csrf_token"]) ?>">
+                                                        <input type="hidden" name="action" value="delete">
+                                                        <input type="hidden" name="user_id" value="<?= (int) $user["user_id"] ?>">
+                                                        <button class="admin-delete-button" type="submit">Hapus</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p class="report-empty">Belum ada akun terdaftar.</p>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+        <?php else: ?>
+            <?php if ($feedbackLoadError): ?>
+                <p class="admin-error">Data kritik dan saran tidak dapat dimuat. Jalankan migrasi database terlebih dahulu.</p>
+            <?php else: ?>
+                <section class="report-table-section" aria-labelledby="feedback-heading">
+                    <div class="report-title">
+                        <h2 id="feedback-heading">Masukan Pengunjung</h2>
+                        <span><?= count($feedbacks) ?> pesan</span>
+                    </div>
+                    <?php if ($feedbacks): ?>
+                        <div class="report-table-wrap">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nama</th>
+                                        <th>Email</th>
+                                        <th>Kritik / Saran</th>
+                                        <th>Tanggal</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($feedbacks as $feedback): ?>
+                                        <tr>
+                                            <td><?= (int) $feedback["feedback_id"] ?></td>
+                                            <td><?= $escape($feedback["name"]) ?></td>
+                                            <td><?= $escape($feedback["email"]) ?></td>
+                                            <td><?= nl2br($escape($feedback["message"])) ?></td>
+                                            <td><?= $escape($feedback["created_at"]) ?></td>
+                                            <td>
+                                                <form
+                                                    action="process/admin_feedback_process.php"
+                                                    method="POST"
+                                                    onsubmit="return confirm('Hapus kritik atau saran ini?');"
+                                                >
+                                                    <input type="hidden" name="csrf_token" value="<?= $escape($_SESSION["admin_csrf_token"]) ?>">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="feedback_id" value="<?= (int) $feedback["feedback_id"] ?>">
+                                                    <button class="admin-delete-button" type="submit">Hapus</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p class="report-empty">Belum ada kritik atau saran.</p>
                     <?php endif; ?>
                 </section>
             <?php endif; ?>

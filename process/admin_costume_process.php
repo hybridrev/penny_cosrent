@@ -36,8 +36,8 @@ $costumeId = is_string($costumeIdInput)
 
 if (
     !is_string($action)
-    || !in_array($action, ["create", "update"], true)
-    || ($action === "update" && ($costumeId === false || $costumeId < 1))
+    || !in_array($action, ["create", "update", "delete"], true)
+    || (in_array($action, ["update", "delete"], true) && ($costumeId === false || $costumeId < 1))
 ) {
     $redirectAdmin("tab=costumes&error=invalid");
 }
@@ -50,6 +50,42 @@ $redirectError = static function (string $error) use ($action, $costumeId, $redi
 
     $redirectAdmin($query);
 };
+
+if ($action === "delete") {
+    try {
+        $conn->beginTransaction();
+
+        $stmt = $conn->prepare(
+            "SELECT costume_id FROM costumes WHERE costume_id = :costume_id FOR UPDATE"
+        );
+        $stmt->execute([":costume_id" => $costumeId]);
+        if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+            $conn->rollBack();
+            $redirectError("costume_not_found");
+        }
+
+        $stmt = $conn->prepare(
+            "SELECT COUNT(*) FROM rental_details WHERE costume_id = :costume_id"
+        );
+        $stmt->execute([":costume_id" => $costumeId]);
+        if ((int) $stmt->fetchColumn() > 0) {
+            $conn->rollBack();
+            $redirectError("costume_in_use");
+        }
+
+        $stmt = $conn->prepare("DELETE FROM costumes WHERE costume_id = :costume_id");
+        $stmt->execute([":costume_id" => $costumeId]);
+        $conn->commit();
+    } catch (PDOException $e) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        error_log("Admin costume deletion failed: " . $e->getMessage());
+        $redirectError("failed");
+    }
+
+    $redirectAdmin("tab=costumes&notice=costume_deleted");
+}
 
 $nameInput = $_POST["costume_name"] ?? "";
 $categoryInput = $_POST["category"] ?? "";
