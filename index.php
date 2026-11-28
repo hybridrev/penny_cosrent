@@ -1,8 +1,11 @@
 <?php
 
 session_start();
+require_once "config/database.php";
 
 $isLoggedIn = isset($_SESSION["user_id"], $_SESSION["username"]);
+$costumeNamesStmt = $conn->query("SELECT DISTINCT costume_name FROM costumes");
+$costumeNames = array_fill_keys($costumeNamesStmt->fetchAll(PDO::FETCH_COLUMN), true);
 
 $costumeFolders = glob(
     __DIR__ . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "images"
@@ -23,6 +26,10 @@ foreach ($costumeFolders as $folder) {
     }
 
     $name = basename($folder);
+    if (!isset($costumeNames[$name])) {
+        continue;
+    }
+
     $costumes[] = [
         "name" => $name,
         "image" => "assets/images/costume/" . rawurlencode($name) . "/1.jpg",
@@ -38,23 +45,28 @@ foreach ($costumeFolders as $folder) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beranda | Penny Cosrent</title>
     <link rel="stylesheet" href="assets/css/homepage.css">
+    <link rel="stylesheet" href="assets/css/costume-detail.css">
 </head>
 
 <body class="home-page">
+    <div class="blur-group">
     <header class="site-header">
         <a class="brand" href="index.php">
             <img class="brand-logo" src="assets/images/logo.png" alt="Logo Penny Cosrent">
             <!-- <span>Penny Cosrent</span> -->
         </a>
-        <?php if ($isLoggedIn): ?>
-            <a class="logout-link" href="auth/logout.php">Logout</a>
-        <?php else: ?>
-            <a class="logout-link" href="auth/login.php">Login</a>
-        <?php endif; ?>
+        <nav class="header-actions" aria-label="Navigasi akun">
+            <!-- <a class="logout-link" href="admin.php">Admin</a> -->
+            <?php if ($isLoggedIn): ?>
+                <a class="logout-link" href="auth/logout.php">Logout</a>
+            <?php else: ?>
+                <a class="logout-link" href="auth/login.php">Login</a>
+            <?php endif; ?>
+        </nav>
     </header>
 
     <main class="home-content">
-        <section class="welcome-card">
+            <div class="welcome-card">
             <?php if ($isLoggedIn): ?>
                 <p class="eyebrow">BERANDA</p>
                 <h1 class="welcome-title">Halow, <?= htmlspecialchars($_SESSION["username"]) ?>!</h1>
@@ -70,7 +82,7 @@ foreach ($costumeFolders as $folder) {
                 </p>
                 <a class="login-button" href="auth/login.php">Login</a>
             <?php endif; ?>
-        </section>
+            </div>
 
         <section class="costume-section" aria-labelledby="costume-heading">
             <div class="catalog-heading">
@@ -82,17 +94,23 @@ foreach ($costumeFolders as $folder) {
             <?php if ($costumes): ?>
                 <div class="costume-grid">
                     <?php foreach ($costumes as $costume): ?>
-                        <article class="costume-card">
-                            <img
-                                class="costume-image"
-                                src="<?= htmlspecialchars($costume["image"], ENT_QUOTES, "UTF-8") ?>"
-                                alt="Kostum <?= htmlspecialchars($costume["name"], ENT_QUOTES, "UTF-8") ?>"
-                                loading="lazy"
-                            >
-                            <div class="costume-card-content">
-                                <h3><?= htmlspecialchars($costume["name"], ENT_QUOTES, "UTF-8") ?></h3>
-                            </div>
-                        </article>
+                        <a
+                            class="costume-card-link"
+                            href="pages/costume_detail.php?name=<?= rawurlencode($costume["name"]) ?>"
+                        >
+                            <article class="costume-card">
+                                <img
+                                    class="costume-image"
+                                    src="<?= htmlspecialchars($costume["image"], ENT_QUOTES, "UTF-8") ?>"
+                                    alt="Kostum <?= htmlspecialchars($costume["name"], ENT_QUOTES, "UTF-8") ?>"
+                                    loading="lazy"
+                                >
+                                <div class="costume-card-content">
+                                    <h3><?= htmlspecialchars($costume["name"], ENT_QUOTES, "UTF-8") ?></h3>
+                                    <span class="costume-card-action">Lihat detail</span>
+                                </div>
+                            </article>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
@@ -100,5 +118,6 @@ foreach ($costumeFolders as $folder) {
             <?php endif; ?>
         </section>
     </main>
+    </div>
 </body>
 </html>

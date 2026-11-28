@@ -1,38 +1,38 @@
 :root {
-    --color-primary: #b98be8;
-    --color-primary-hover: #d3b3f2;
-    --color-primary-light: #eadcf7;
-    --color-background: #100b16;
-    --color-surface: #191220;
-    --color-border: #33243f;
+    --color-primary: #e3a2c1;
+    --color-primary-hover: #f0bdd1;
+    --color-primary-light: #fff1f6;
+    --color-background: #6f6077;
+    --color-surface: rgba(73, 57, 80, 0.78);
+    --color-border: rgba(255, 255, 255, 0.62);
 }
 
 @font-face {
     font-family: "Honey";
-    src: url("assets/fonts/Honey Salt.otf") format("opentype");
+    src: url("../fonts/Honey Salt.otf") format("opentype");
 }
 
 @font-face {
     font-family: "Amor";
-    src: url("assets/fonts/Amorlate.otf") format("opentype");
-    src: url("assets/fonts/Amorlate.ttf") format("truetype");
+    src: url("../fonts/Amorlate.otf") format("opentype");
+    src: url("../fonts/Amorlate.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Darling";
-    src: url("assets/fonts/Darling Coffee.otf") format("opentype");
-    src: url("assets/fonts/Darling Coffee.ttf") format("truetype");
+    src: url("../fonts/Darling Coffee.otf") format("opentype");
+    src: url("../fonts/Darling Coffee.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Cherry";
-    src: url("assets/fonts/Dacherry.otf") format("opentype");
-    src: url("assets/fonts/Dacherry.ttf") format("truetype");
+    src: url("../fonts/Dacherry.otf") format("opentype");
+    src: url("../fonts/Dacherry.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Digital";
-    src: url("assets/fonts/digital-7.ttf") format("truetype");
+    src: url("../fonts/digital-7.ttf") format("truetype");
 }
 
 * {
@@ -42,81 +42,124 @@
 body.home-page {
     min-height: 100vh;
     margin: 0;
-    background: var(--color-background);
+    background:
+        linear-gradient(rgba(37, 23, 51, 0.18), rgba(37, 23, 51, 0.38)),
+        url("../images/Background-Firefly.jpg") center / cover fixed;
     color: #f7f2fb;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: Honey, Arial, Helvetica, sans-serif;
+}
+
+.blur-group {
+    /* background: linear-gradient(360deg, rgb(250, 217, 221, 0.3), rgb(41, 33, 64, 0.2)); */
+    max-width: 800px;
+    min-height: calc(100vh - 20px);
+    margin: 0 auto;
+    padding: 10px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #fff;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 20px #333;
+    backdrop-filter: blur(5px);
 }
 
 .site-header {
-    min-height: 72px;
-    padding: 0 max(24px, calc((100% - 1080px) / 2));
+    width: min(calc(100% - 32px), 760px);
+    min-height: 96px;
+    margin: 10px auto 20px;
+    padding: 18px 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: 16px;
+    background: #eac4d4;
+    box-shadow: 0 12px 34px rgba(45, 29, 52, 0.18);
+    backdrop-filter: blur(12px);
 }
 
 .brand {
     display: inline-flex;
-    font-family: Dacherry;
+    font-family: Cherry, serif;
     align-items: center;
-    color: #fff;
-    font-size: 30px;
+    color: #7b1c58;
+    font-size: 28px;
     font-weight: 400;
     text-decoration: none;
 }
 
 .brand-logo {
-    width: 50px;
-    height: 50px;
-    weight: 600;
+    width: 58px;
+    height: 58px;
     object-fit: contain;
 }
 
 .logout-link {
-    padding: 9px 15px;
-    border: 1px solid #574365;
-    border-radius: 7px;
-    color: var(--color-primary);
-    font-size: 14px;
-    font-weight: 600;
+    min-width: 66px;
+    padding: 10px 14px;
+    border: 1px solid rgba(75, 42, 82, 0.58);
+    border-radius: 9px;
+    background: #ffffff;
+    color: #4b354f;
+    font-size: 13px;
+    text-align: center;
     text-decoration: none;
-    transition: background-color 150ms ease, border-color 150ms ease;
+    transition: transform 150ms ease, background-color 150ms ease;
 }
 
 .logout-link:hover {
-    border-color: #80649a;
-    background: #271b31;
-    color: var(--color-primary-hover);
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .home-content {
-    width: min(100% - 40px, 1080px);
-    margin: 64px auto;
+    width: min(calc(100% - 32px), 760px);
+    margin: 0 auto 40px;
 }
 
 .welcome-card {
-    padding: clamp(32px, 7vw, 72px);
-    overflow: hidden;
-    border: 1px solid #55376d;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #21142c, #321b45 60%, #43265b);
+    min-height: 220px;
+    border-bottom: 1px solid #ffffff;
+    border-radius: 16px;
+    /* background: rgba(72, 52, 82, 0.56);
     color: #fff;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 16px 36px rgba(31, 20, 38, 0.16);
+    backdrop-filter: blur(8px); */
+    align-self: stretch;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.welcome-image {
+    width: 100%;
+    height: 196px;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.46);
+    border-radius: 20px;
+    object-fit: cover;
 }
 
 .welcome-title {
     margin: 0 0 12px;
-    font-family: Amorlate;
+    font-family: Amor;
     font-weight: 400;
-    font-size: 50px;
-    letter-spacing: -0.04em;
+    font-size: clamp(30px, 6vw, 42px);
+    letter-spacing: -0.02em;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.52);
 }
 
 .eyebrow {
     margin: 0 0 16px;
-    color: #d3b3f2;
+    color: #ffe3ef;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -130,45 +173,55 @@ body.home-page {
 .welcome-message {
     max-width: 560px;
     margin: 18px 0 26px;
-    color: #ded3e8;
-    font-size: 17px;
+    color: #fff;
+    font-size: 15px;
     line-height: 1.7;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.72);
 }
 
 .status-badge {
+    align-self: flex-end;
     display: inline-block;
-    padding: 9px 13px;
-    border: 1px solid rgba(234, 220, 247, 0.32);
-    border-radius: 999px;
-    background: rgba(234, 220, 247, 0.1);
-    color: var(--color-primary-light);
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: 10px;
+    background: #fff;
+    color: #4b354f;
     font-size: 13px;
     font-weight: 600;
 }
 
 .login-button {
+    align-self: flex-end;
     display: inline-block;
-    padding: 12px 22px;
-    border: 1px solid #8e5db2;
-    border-radius: 8px;
-    background: #552879;
-    color: #fff;
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: 10px;
+    background: #fff;
+    color: #4b354f;
     font-weight: 700;
     text-decoration: none;
     transition: background-color 150ms ease, transform 150ms ease;
 }
 
 .login-button:hover {
-    background: #673390;
+    background: #ffeaf3;
     transform: translateY(-1px);
 }
 
 .costume-section {
-    margin-top: 56px;
+    margin-top: 28px;
+    padding: 24px;
+    border-top: 1px solid #ffffff;
+    /* border: 1px solid rgba(255, 255, 255, 0.58); */
+    border-radius: 16px;
+    /* background: rgba(48, 38, 58, 0.54);
+    box-shadow: 0 16px 36px rgba(31, 20, 38, 0.14);
+    backdrop-filter: blur(10px); */
 }
 
 .catalog-heading {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 .catalog-heading .eyebrow {
@@ -189,21 +242,22 @@ body.home-page {
 
 .costume-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
+    gap: 14px;
 }
 
 .costume-card {
     overflow: hidden;
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    background: var(--color-surface);
+    border: 1px solid rgba(255, 255, 255, 0.52);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #4b354f;
     transition: transform 160ms ease, border-color 160ms ease;
 }
 
 .costume-card:hover {
-    transform: translateY(-3px);
-    border-color: #72518a;
+    transform: translateY(-4px);
+    border-color: #fff;
 }
 
 .costume-image {
@@ -220,8 +274,8 @@ body.home-page {
 
 .costume-card h3 {
     margin: 0;
-    color: #f7f2fb;
-    font-size: 16px;
+    color: #4b354f;
+    font-size: 14px;
     font-weight: 600;
     line-height: 1.4;
 }
@@ -236,15 +290,52 @@ body.home-page {
 
 @media (max-width: 600px) {
     .site-header {
-        min-height: 64px;
-        padding: 0 20px;
+        width: calc(100% - 20px);
+        min-height: 76px;
+        margin: 10px auto 12px;
+        padding: 12px 14px;
+    }
+
+    .brand-logo {
+        width: 48px;
+        height: 48px;
     }
 
     .home-content {
-        margin: 32px auto;
+        width: calc(100% - 20px);
+        margin-bottom: 20px;
+    }
+
+    .welcome-card {
+        grid-template-columns: 120px 1fr;
+        min-height: 180px;
+        gap: 10px;
+    }
+
+    .welcome-image {
+        height: 156px;
+    }
+
+    .welcome-copy {
+        padding: 14px 8px 10px 2px;
+    }
+
+    .welcome-title {
+        font-size: 27px;
+    }
+
+    .welcome-message {
+        margin: 10px 0 14px;
+        font-size: 13px;
+        line-height: 1.45;
     }
 
     .costume-section {
-        margin-top: 40px;
+        margin-top: 14px;
+        padding: 16px;
+    }
+
+    .costume-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }

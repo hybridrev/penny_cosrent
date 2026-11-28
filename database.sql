@@ -76,7 +76,11 @@ CREATE TABLE `payments` (
 
 CREATE TABLE `rentals` (
   `rental_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `renter_name` varchar(100) DEFAULT NULL,
+  `renter_email` varchar(100) DEFAULT NULL,
+  `renter_phone` varchar(20) DEFAULT NULL,
+  `renter_address` text DEFAULT NULL,
   `start_date` date NOT NULL,
   `return_date` date NOT NULL,
   `total_price` decimal(12,2) NOT NULL DEFAULT 0.00,

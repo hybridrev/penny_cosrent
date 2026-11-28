@@ -56,6 +56,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         }
 
+        $returnCostume = $_POST["return_costume"] ?? "";
+        if (is_string($returnCostume) && $returnCostume !== "") {
+            $costumeFolders = glob(
+                __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "assets"
+                    . DIRECTORY_SEPARATOR . "images" . DIRECTORY_SEPARATOR . "costume"
+                    . DIRECTORY_SEPARATOR . "*",
+                GLOB_ONLYDIR
+            );
+
+            if ($costumeFolders === false) {
+                throw new RuntimeException("Gagal membaca folder katalog kostum.");
+            }
+
+            foreach ($costumeFolders as $folder) {
+                if (basename($folder) === $returnCostume) {
+                    header(
+                        "Location: ../pages/costume_detail.php?name="
+                            . rawurlencode($returnCostume)
+                    );
+                    exit;
+                }
+            }
+        }
+
         header("Location: ../");
         exit;
 
